@@ -1,0 +1,110 @@
+<!-- WORD OF THE DAY WEBSITE -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Word of the Day</title>
+        <link rel="stylesheet" href="./mainStyles.css">
+        <script type="module" src="./main.js"></script>
+    </head>
+
+    <body>
+        <!-- Place arrow button to navigate to previous day to left of word div-->
+        <div id="leftArrow">
+            <button id="leftArrowBtn" type="button">←</button>
+        </div>
+        <div id="rightArrow">
+            <button id="rightArrowBtn" type="button">→</button>
+        </div>
+
+        <div id="word">
+            <h1>Word of the Day</h1>
+            <div id="selectedDate"></div>
+                
+            </div>
+            <div id="wordOfDay_jpn">
+                <input id="wordOfDay_jpn_input" type="text" name="word">
+            </div>
+
+            <div id="wordOfDay_jpn">
+                <input id="wordOfDay_jpn_kanji_input" type="text" name="word">
+            </div>
+
+            <div id="wordOfDay_eng">
+                <input id="wordOfDay_eng_input" type="text" name="word">
+            </div>
+
+            <br><br><br><br>
+            
+            <div id="tangorin">
+                <a id="tangorinLink" href="">Tangorin</a>
+            </div>
+            <div id="jisho">
+                <a id="jishoLink" href="">Jisho</a>
+            </div>
+
+
+            <!-- Give some space-->
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+
+            
+            <div id="wordList"></div>
+
+            
+                <p>Definition</p>
+                <p>Example</p>
+            </div>
+        </div>
+
+        
+        <div id="currentUser"></div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+        <div id="UsersUI">
+            <h2>Users</h2>
+            <div id="userButtons"></div>
+            <form>
+                <label for="userNameInput">New User</label>
+                <input id="userNameInput" type="text" name="word">
+                <br>
+                <input id="submitUserBtn" type="button" value="Submit">
+            </form>
+        </div>
+
+        <!-- Firebase code stuff-->
+        <script type="module">
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+            import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js";
+            // TODO: Add SDKs for Firebase products that you want to use
+            // https://firebase.google.com/docs/web/setup#available-libraries
+          
+            // Your web app's Firebase configuration
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+              apiKey: "AIzaSyAdh6WdcQZ4JNnDoQK49FH_0tFpTqTF-P8",
+              authDomain: "wordofthedaysite.firebaseapp.com",
+              projectId: "wordofthedaysite",
+              storageBucket: "wordofthedaysite.appspot.com",
+              messagingSenderId: "814604332676",
+              appId: "1:814604332676:web:53e7866526fe1acc5edcd1",
+              measurementId: "G-2FXQ2RL5Y3"
+            };
+          
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const analytics = getAnalytics(app);
+          </script>
+    </body>
+
+</html>

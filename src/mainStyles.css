@@ -1,0 +1,64 @@
+
+/* standard pastel colors */
+
+h1 {
+    color: #FFCC99;
+    font-size: 3em;
+
+    /*no spacing below the word*/
+    margin-bottom: 0px;
+}
+
+h2 {
+    color: #FFCC99;
+    font-size: 2em;
+}
+
+body {
+    color:aqua;
+    background-color: black;
+}
+
+a {
+    color: #FFCC99;
+}
+
+#wordOfDay_jpn {
+    color: aliceblue;
+    font-size: 8em;
+    /*no spacing below the word*/
+    margin-bottom: 0px;
+}
+
+#wordOfDay_jpn_input {
+    color: aliceblue;
+    font-size: 1em;
+    background-color: black;
+    /*no spacing below the word*/
+    margin-bottom: 0px;
+}
+
+#wordOfDay_jpn_kanji_input {
+    color: aliceblue;
+    font-size: 24pt;
+    background-color: black;
+    /*no spacing below the word*/
+    margin-bottom: 0px;
+}
+
+/* make text bigger */
+#wordOfDay_eng_input {
+    color: aliceblue;
+    background-color: black;
+    font-size: 3em;
+}
+
+
+#currentUser {
+    color: red;
+}
+
+#selectedDate {
+    color: rgb(250, 250, 250);
+    font-size: 2em;
+}
