@@ -1,0 +1,15 @@
+<words>
+
+    <!-- MIKES LIST OF WORDS OF THE DAY -->
+    <mike>
+        <word>hello</word>
+        <word>world</word>
+    </mike>
+
+    <!-- SOPHIES LIST OF WORDS OF THE DAY -->
+    <sophie>
+        <word>hello</word>
+        <word>world</word>
+    </sophie>
+
+</words>

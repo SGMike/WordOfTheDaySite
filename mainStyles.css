@@ -1,0 +1,23 @@
+
+/* standard pastel colors */
+
+h1 {
+    color: #FFCC99;
+    font-size: 2em;
+}
+
+body {
+    color:aqua;
+    background-color: black;
+}
+
+/* make text bigger */
+#wordOfDay {
+    color: aliceblue;
+    font-size: 8em;
+}
+
+#currentUser {
+    color: red;
+}
+
