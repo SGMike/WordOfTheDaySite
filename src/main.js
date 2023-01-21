@@ -513,17 +513,15 @@ function RefreshLinks()
 
     if (anyTextIsSet)
     {
-        //-----------------------------------------------------------
-        //Create link to jisho
-        //Get the link element from within the div
-        jishoLink.innerHTML = "Jisho";
-        tangorinLink.innerHTML = "Tangorin";
+        //Create links
+        jishoLink.style.visibility = "visible";
+        tangorinLink.style.visibility = "visible";
     }
     else
     {
         //Hide links
-        jishoLink.innerHTML = "";
-        tangorinLink.innerHTML = "";
+        jishoLink.style.visibility = "hidden";
+        tangorinLink.style.visibility = "hidden";
     }
 }
 
