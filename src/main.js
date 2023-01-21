@@ -45,26 +45,60 @@ onAuthStateChanged(auth, user => {
 import * as ClassDefs from "./ClassDefs.js";
 
 //==============================================================================
-
-
 let g_monthNames = ["January", "February", "March", "April", "May", "June",
                     "July", "August", "September", "October", "November", "December"];
 
 let g_selectedDate = null;
-let g_currentUser = null;
+let g_selectedUserEntry = null;
 
 //==============================================================================
+const wordElement_eng = document.getElementById('wordOfDay_eng_input');
+const wordElement_jpn = document.getElementById('wordOfDay_jpn_input');
+const wordElement_jpn_kanji = document.getElementById('wordOfDay_jpn_kanji_input');
 
-function writeUserData(userId, name) 
+//==============================================================================
+function GetCurrentInputText_English()
 {
-    const db = getDatabase(app);
-    const reference = ref(db, 'users/' + userId);
+    return wordElement_eng.value;
+}
 
-    set(reference, {
-        username: name
-    });
+function GetCurrentInputText_Japanese()
+{
+    return wordElement_jpn.value;
+}
 
-    console.log("INIT USER DATA FOR: " + name);
+function GetCurrentInputText_JapaneseKanji()
+{
+    return wordElement_jpn_kanji.value;
+}
+
+function GetDateID(date)
+{
+    let formattedDateString = date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear();
+    return formattedDateString;
+}
+
+function GetUserDBPath(userId)
+{
+    return 'users/' + userId;
+}
+
+function GetDBPath_ActiveUser()
+{
+    return GetUserDBPath(g_selectedUserEntry.userId);
+}
+
+function GetPath_Date(date, userId)
+{
+    let outPath = GetUserDBPath(userId) + '/words/' + GetDateID(date);
+    console.log("GetPath_Date: " + outPath);
+    return outPath;
+}
+
+function GetSelectedDatePath()
+{
+    return GetPath_Date(g_selectedDate, g_selectedUserEntry.userId);
+    //return GetDBPath_ActiveUser() + '/words/' + GetDateID(g_selectedDate);
 }
 
 function AddWord(wordEntry)
@@ -80,10 +114,7 @@ function AddWord(wordEntry)
 
 function DisplayWord(wordEntry)
 {
-    const wordElement_eng = document.getElementById('wordOfDay_eng_input');
-    const wordElement_jpn = document.getElementById('wordOfDay_jpn_input');
-    const wordElement_jpn_kanji = document.getElementById('wordOfDay_jpn_kanji_input');
-
+    
     //Set input field to the word
     wordElement_eng.value = wordEntry.eng;
     wordElement_jpn.value = wordEntry.jpn;
@@ -101,10 +132,33 @@ function DisplayWord(wordEntry)
     tangorinLink.href = "https://tangorin.com/words?search=" + wordEntry.eng;
 }
 
-function SetActiveUser(user)
+function SetSelectedUser(userId)
 {
-    g_currentUser = user;
-    RefreshPage();
+    console.log("Setting selected user with ID: " + userId);
+
+    //Get the user entry from the database
+    const db = getDatabase(app);
+    const reference = ref(db, 'users/' + userId);
+    get(reference).then((snapshot) => {
+        console.log("Setting selected user...");
+        if (snapshot.exists())
+        {
+            console.log("snapshot val: " + snapshot.key);
+            const userEntry = new ClassDefs.UserEntry(snapshot.key, snapshot.key);
+            
+            g_selectedUserEntry = userEntry;
+            console.log("Set active user: " + userEntry.userId);
+
+            RefreshPage();
+        }
+        else
+        {
+            console.log("No user data available!");
+        }
+    }).catch((error) => {
+        console.error(error);
+    });
+    
 }
 
 function GetDBUsers()
@@ -152,13 +206,16 @@ function UpdateUserList(users)
     const userButtonContainer = document.getElementById('userButtons');
     for (let i = 0; i < users.length; i++)
     {
-        const userId = users[i].id;
-        console.log("USER: " + users[i].displayName);
-        const userButton = document.createElement('button');
+        let userId = users[i].id;
+        console.log("USER: id:" + users[i].userId + ", name:" + users[i].displayName);
+        let userButton = document.createElement('button');
         userButton.innerHTML = users[i].displayName;
-        userButton.onclick = (uid) => {
-            SetActiveUser(uid);
-        };
+
+        //Set the onclick function to set the selected user
+        userButton.addEventListener('click', function() {
+            SetSelectedUser(userButton.textContent);
+        });
+
         userButtonContainer.appendChild(userButton);
     }
 }
@@ -213,29 +270,6 @@ function AddUser(user)
 }
 
 //===============================================================
-//Listen for when submitWordBtn is pressed
-function SubmitWord()
-{
-    console.log("SubmitWord(");
-    //Get the values inside word-eng and word-jpn
-    const wordEng = document.getElementById('word-eng').value;
-    const wordJpn = document.getElementById('word-jpn').value;
-    const wordKanji = document.getElementById('word-jpn').value;
-    
-    //If both fields are filled out, add the word to the word list
-    if (wordEng != "" && wordJpn != "")
-    {
-        let wordEntry = new WordEntry(wordEng, wordJpn);
-        
-        AddWord(wordEntry);
-    }
-    else
-    {
-        console.log("ERROR: Both fields must be filled out");
-    }
-}
-
-//===============================================================
 function SubmitUser()
 {
     console.log("SubmitUser");
@@ -258,9 +292,62 @@ function SubmitUser()
 
 function GetWordForDate(date, user)
 {
-    let word = new ClassDefs.WordEntry("thunder", "かみなり", "雷");
+    return new Promise((resolve, reject) => {
+        if (date == null)
+        {
+            //Error
+            console.log("ERROR: Date is null");
+            reject("ERROR: Date is null");
+        }
 
-    return word;
+        if (user == null)
+        {
+            //Error
+            console.log("ERROR: User is null");
+            reject("ERROR: User is null");
+        }
+
+        //let word = new ClassDefs.WordEntry("thunder", "かみなり", "雷");
+        let word_eng = "thunder";
+        let word_jpn = "かみなり";
+        let word_kanji = "雷";
+        
+        //Query the database for the word for the given date
+        const db = getDatabase(app);
+        const wordPath = GetPath_Date(date, user.userId);
+        const reference = ref(db, wordPath);
+        console.log("WORD PATH: " + wordPath);
+        get(reference).then((snapshot) => {
+            if (snapshot.exists())
+            {
+                console.log("WORD EXISTS: " + snapshot.key);
+                
+                //Get the word from the database
+                const wordData = snapshot.val();
+                word_eng = snapshot.child("eng").val();
+                word_jpn = snapshot.child("jpn").val();
+                word_kanji = snapshot.child("kanji").val();
+
+                console.log("WORD ENG: " + word_eng);
+
+                let word = new ClassDefs.WordEntry(word_eng, word_jpn, word_kanji);
+                resolve(word);
+            }
+            else
+            {
+                console.log("No data available, creating new word");
+                word_eng = GetCurrentInputText_English();
+                word_jpn = GetCurrentInputText_Japanese();
+                word_kanji = GetCurrentInputText_JapaneseKanji();
+
+                let word = new ClassDefs.WordEntry(word_eng, word_jpn, word_kanji);
+                resolve(word);
+            }
+        }).catch((error) => {
+            console.error(error);
+            reject(error);
+        });
+    });
 }
 
 function IterateDate(delta)
@@ -280,13 +367,15 @@ function IterateDate(delta)
 //===============================================================
 function RefreshPage()
 {
+    console.log("RefreshPage");
+
     const currentUserElement = document.getElementById('currentUser');
-    //if current user is valid
-    if (g_currentUser)
+    
+    if (g_selectedUserEntry)
     {
-        console.log(g_currentUser);
+        console.log(g_selectedUserEntry);
         //Get currentUser element and add a label with the display name
-        currentUserElement.innerHTML = g_currentUser.displayName;
+        currentUserElement.innerHTML = g_selectedUserEntry.displayName;
     }
     else
     {
@@ -303,12 +392,19 @@ function RefreshPage()
         let yearString = g_selectedDate.getFullYear();
         let formattedDateString = monthString + " " + dayString + ", " + yearString;
         selectedDateElement.innerHTML = formattedDateString;
-        
-        //Get the word for the selected date for the current user
-        
-        let wordForDate = GetWordForDate(g_selectedDate, g_currentUser);
-        DisplayWord(wordForDate);
-        
+     
+        if (g_selectedUserEntry)
+        {
+            //Get the word for the selected date for the current user
+            // wait for promise
+
+            GetWordForDate(g_selectedDate, g_selectedUserEntry).then((wordForDate) => {
+                console.log("WORD FOR DATE: " + wordForDate);
+
+                //Display the word
+                DisplayWord(wordForDate);
+            });
+        }
     }
 }
 
@@ -319,6 +415,21 @@ function SetDate(date)
     RefreshPage();
 }
 
+function UpdateActiveWordInDB()
+{
+    if (g_selectedUserEntry == null)
+    {
+        return null;
+    }
+    console.log("UpdateActiveWordInDB");
+    const db = getDatabase(app);
+    const reference = ref(db, GetSelectedDatePath());
+
+    let word = new ClassDefs.WordEntry(wordElement_eng.value, wordElement_jpn.value, wordElement_jpn_kanji.value);
+    
+    set(reference, word);
+}
+
 //===============================================================
 function InitSite()
 {
@@ -326,14 +437,23 @@ function InitSite()
 
     //Init input fields
 
+    //Get on submit for word input
+    wordElement_eng.oninput = function() {
+        UpdateActiveWordInDB()
+    }
+    wordElement_jpn.oninput = function() {
+        UpdateActiveWordInDB()
+    }
+    wordElement_jpn_kanji.oninput = function() {
+        UpdateActiveWordInDB()
+    }
 
     //Default to today's date
     const date = new Date();
     SetDate(date);
 
-    RefreshPage();
+    //RefreshPage();
 
-    //activeWordList = GetWordList('Mike');
 }
 
 window.onload = InitSite;
