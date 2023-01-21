@@ -178,26 +178,8 @@ function DisplayWord(wordEntry)
     wordElement_eng.value = text_eng;
     wordElement_jpn.value = text_jpn;
     wordElement_jpn_kanji.value = text_jpn_kanji;
-
     
-
-    if (wordEntry)
-    {
-        //-----------------------------------------------------------
-        //Create link to jisho
-        //Get the link element from within the div
-        jishoLink.innerHTML = "Jisho";
-        
-        //Link to tangorin
-        
-        tangorinLink.innerHTML = "Tangorin";
-    }
-    else
-    {
-        //Hide links
-        jishoLink.innerHTML = "";
-        tangorinLink.innerHTML = "";
-    }
+    RefreshLinks();
 }
 
 function SetSelectedUser(userId)
@@ -522,19 +504,46 @@ function SetDate(date)
     RefreshPage();
 }
 
-function UpdateActiveWordInDB()
+function RefreshLinks()
 {
+    let anyTextIsSet = (wordElement_eng.value.length > 0 || 
+        wordElement_jpn.value.length > 0 || 
+        wordElement_jpn_kanji.value.length > 0
+        );
+
+    if (anyTextIsSet)
+    {
+        //-----------------------------------------------------------
+        //Create link to jisho
+        //Get the link element from within the div
+        jishoLink.innerHTML = "Jisho";
+        tangorinLink.innerHTML = "Tangorin";
+    }
+    else
+    {
+        //Hide links
+        jishoLink.innerHTML = "";
+        tangorinLink.innerHTML = "";
+    }
+}
+
+function OnTextInput()
+{
+    //Update DB Entry
     if (g_selectedUserEntry == null)
     {
         return null;
     }
-    console.log("UpdateActiveWordInDB");
+    console.log("OnTextInput");
     const db = getDatabase(app);
     const reference = ref(db, GetSelectedDatePath());
 
     let word = new ClassDefs.WordEntry(wordElement_eng.value, wordElement_jpn.value, wordElement_jpn_kanji.value);
     
     set(reference, word);
+
+    //Refresh links
+    RefreshLinks();
 }
 
 //===============================================================
@@ -546,13 +555,13 @@ function InitSite()
 
     //Get on submit for word input
     wordElement_eng.oninput = function() {
-        UpdateActiveWordInDB()
+        OnTextInput();
     }
     wordElement_jpn.oninput = function() {
-        UpdateActiveWordInDB()
+        OnTextInput();
     }
     wordElement_jpn_kanji.oninput = function() {
-        UpdateActiveWordInDB()
+        OnTextInput();
     }
 
     //Default to today's date
