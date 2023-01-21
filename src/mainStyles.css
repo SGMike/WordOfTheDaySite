@@ -6,11 +6,13 @@
     --col_input_valid: #7ebaff;
 
     --col_subHeader: #7a756f;
+
+    font-family: Helvetica;
   }
 
 h1 {
     color: #8a8a8a;
-    font-size: 3em;
+    font-size: 2em;
 
     /*no spacing below the word*/
     margin-bottom: 0px;
@@ -22,7 +24,7 @@ h2 {
 }
 
 body {
-    color:aqua;
+    color:rgb(255, 255, 255);
     background-color: var(--col_bg);
 }
 
