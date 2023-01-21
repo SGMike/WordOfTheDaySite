@@ -182,6 +182,8 @@ function DisplayWord(wordEntry)
     RefreshLinks();
 }
 
+let g_cachedUserIdKey = "cachedUserId";
+
 function SetSelectedUser(userId)
 {
     console.log("Setting selected user with ID: " + userId);
@@ -198,6 +200,8 @@ function SetSelectedUser(userId)
             
             g_selectedUserEntry = userEntry;
             console.log("Set active user: " + userEntry.userId);
+
+            localStorage.setItem(g_cachedUserIdKey, userEntry.userId);
 
             RefreshPage();
         }
@@ -547,6 +551,13 @@ function OnTextInput()
 //===============================================================
 function InitSite()
 {
+    //See if there is a cached user id
+    let cachedUserId = localStorage.getItem(g_cachedUserIdKey);
+    if (cachedUserId)
+    {
+        SetSelectedUser(cachedUserId);
+    }
+
     InitButtons();
 
     //Init input fields
