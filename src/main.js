@@ -365,7 +365,7 @@ function SubmitUser()
     //If the field is filled out, add the user to the user list
     if (newUserName != "")
     {
-        let newUser = new UserEntry(newUserName);
+        let newUser = new ClassDefs.UserEntry(newUserName);
         AddUser(newUser);
     }
     else
