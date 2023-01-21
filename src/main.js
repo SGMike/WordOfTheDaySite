@@ -51,10 +51,14 @@ let g_monthNames = ["January", "February", "March", "April", "May", "June",
 let g_selectedDate = null;
 let g_selectedUserEntry = null;
 
+let g_buttonElems = [];
+
 //==============================================================================
 const wordElement_eng = document.getElementById('wordOfDay_eng_input');
 const wordElement_jpn = document.getElementById('wordOfDay_jpn_input');
 const wordElement_jpn_kanji = document.getElementById('wordOfDay_jpn_kanji_input');
+
+const userButtonContainer = document.getElementById('userButtons');
 
 const jishoDiv = document.getElementById('jisho');
 const jishoLink = jishoDiv.getElementsByTagName('a')[0];
@@ -252,17 +256,33 @@ function GetDBUsers()
     });
 }
 
+
+function ClearButtonList()
+{
+    
+    for (let i = 0; i < g_buttonElems.length; i++)
+    {
+        userButtonContainer.removeChild(g_buttonElems[i]);
+    }
+
+    g_buttonElems = [];
+}
+
 function UpdateUserList(users)
 {
     console.log("INIT BUTTONS, users.length: " + users.length);
 
+    ClearButtonList();
+
     //Add a button for every user, displayed as a horizontal list of buttons
-    const userButtonContainer = document.getElementById('userButtons');
     for (let i = 0; i < users.length; i++)
     {
         let userId = users[i].id;
         console.log("USER: id:" + users[i].userId + ", name:" + users[i].displayName);
         let userButton = document.createElement('button');
+
+        g_buttonElems.push(userButton);
+
         userButton.innerHTML = users[i].displayName;
 
         //Set the onclick function to set the selected user
@@ -352,7 +372,14 @@ function AddUser(user)
     //Add the user to the database
     const db = getDatabase(app);
     const reference = ref(db, 'users/' + user.userId);
-    set(reference, user);
+    set(reference, user).then(() => {
+        console.log("User added successfully!");
+        StartUpdateUserList();
+    }).catch((error) => {
+        console.error("Error adding user: ", error);
+    });
+
+    
 }
 
 //===============================================================
