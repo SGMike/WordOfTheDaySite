@@ -56,6 +56,12 @@ const wordElement_eng = document.getElementById('wordOfDay_eng_input');
 const wordElement_jpn = document.getElementById('wordOfDay_jpn_input');
 const wordElement_jpn_kanji = document.getElementById('wordOfDay_jpn_kanji_input');
 
+const jishoDiv = document.getElementById('jisho');
+const jishoLink = jishoDiv.getElementsByTagName('a')[0];
+
+const tangorinDiv = document.getElementById('tangorin');
+const tangorinLink = tangorinDiv.getElementsByTagName('a')[0];
+
 //==============================================================================
 function GetCurrentInputText_English()
 {
@@ -112,24 +118,86 @@ function AddWord(wordEntry)
     console.log("ADD WORD: " + wordEntry.eng + ": " + wordEntry.jpn);
 }
 
+function ClearWords()
+{
+    wordElement_eng.value = "";
+    wordElement_jpn.value = "";
+    wordElement_jpn_kanji.value = "";
+}
+
 function DisplayWord(wordEntry)
 {
-    
+    if (wordEntry === null)
+    {
+        ClearWords();
+        return;
+    }
+
+    console.log("DisplayWord: " + wordEntry);
+    let text_eng = "";
+    let text_jpn = "";
+    let text_jpn_kanji = "";
+
+    //set the text to be greyed out style
+    //style_valueSet = "white";
+    //style_valueNotSet = "grey";
+    //wordElement_eng.style.color = style_valueNotSet;
+    //wordElement_jpn.style.color = style_valueNotSet;
+    //wordElement_jpn_kanji.style.color = style_valueNotSet;
+
+    //Set placeholder attribute
+    wordElement_eng.placeholder = "English";
+    wordElement_jpn.placeholder = "Hiragana";
+    wordElement_jpn_kanji.placeholder = "Kanji";
+
     //Set input field to the word
-    wordElement_eng.value = wordEntry.eng;
-    wordElement_jpn.value = wordEntry.jpn;
-    wordElement_jpn_kanji.value = wordEntry.kanji;
+    if (wordEntry)
+    {
+        console.log(wordEntry.eng);
+        if (wordEntry.eng && wordEntry.eng.length > 0)
+        {
+            text_eng = wordEntry.eng;
+            //wordElement_eng.style.color = style_valueSet;
+        }
+        
+        if (wordEntry.jpn && wordEntry.jpn.length > 0)
+        {
+            text_jpn = wordEntry.jpn;
+            //wordElement_jpn.style.color = style_valueSet;
+        }
+        
+        if (wordEntry.kanji && wordEntry.kanji.length > 0)
+        {
+            text_jpn_kanji = wordEntry.kanji;
+            //wordElement_jpn_kanji.style.color = style_valueSet;
+        }
+    }
 
-    //Create link to jisho
-    const jishoDiv = document.getElementById('jisho');
-    //Get the link element from within the div
-    const jishoLink = jishoDiv.getElementsByTagName('a')[0];
-    jishoLink.href = "https://jisho.org/search/" + wordEntry.eng;
+    console.log("Displaying word: " + text_eng + ": " + text_jpn);
 
-    //Link to tangorin
-    const tangorinDiv = document.getElementById('tangorin');
-    const tangorinLink = tangorinDiv.getElementsByTagName('a')[0];
-    tangorinLink.href = "https://tangorin.com/words?search=" + wordEntry.eng;
+    wordElement_eng.value = text_eng;
+    wordElement_jpn.value = text_jpn;
+    wordElement_jpn_kanji.value = text_jpn_kanji;
+
+    
+
+    if (wordEntry)
+    {
+        //-----------------------------------------------------------
+        //Create link to jisho
+        //Get the link element from within the div
+        jishoLink.innerHTML = "Jisho";
+        
+        //Link to tangorin
+        
+        tangorinLink.innerHTML = "Tangorin";
+    }
+    else
+    {
+        //Hide links
+        jishoLink.innerHTML = "";
+        tangorinLink.innerHTML = "";
+    }
 }
 
 function SetSelectedUser(userId)
@@ -246,6 +314,38 @@ function InitButtons()
     arrowRightBtn.onclick = () => {
         IterateDate(1);
     };
+
+    
+
+    //Listen for jisho pressed
+    jishoLink.onclick = () => {
+        console.log("Jisho link pressed!");
+
+        //Open new tab to jisho
+        let engTextContent = wordElement_eng.value;
+        if (engTextContent.length > 0)
+        {
+            let url = "https://jisho.org/search/" + engTextContent;
+            window.open(url, '_blank').focus();
+        }
+
+        return false;//Don't do default behavior
+    };
+
+    //Listen for tangorin pressed
+    tangorinLink.onclick = () => {
+        console.log("Tangorin link pressed!");
+
+        //Open new tab to tangorin
+        let engTextContent = wordElement_eng.value;
+        if (engTextContent.length > 0)
+        {
+            let url = "https://tangorin.com/words?search=" + engTextContent;
+            window.open(url, '_blank').focus();
+        }
+
+        return false;//Don't do default behavior
+    }
 }
 
 //===============================================================
@@ -297,20 +397,15 @@ function GetWordForDate(date, user)
         {
             //Error
             console.log("ERROR: Date is null");
-            reject("ERROR: Date is null");
+            reject(undefined);
         }
 
         if (user == null)
         {
             //Error
             console.log("ERROR: User is null");
-            reject("ERROR: User is null");
+            reject(undefined);
         }
-
-        //let word = new ClassDefs.WordEntry("thunder", "かみなり", "雷");
-        let word_eng = "thunder";
-        let word_jpn = "かみなり";
-        let word_kanji = "雷";
         
         //Query the database for the word for the given date
         const db = getDatabase(app);
@@ -324,9 +419,10 @@ function GetWordForDate(date, user)
                 
                 //Get the word from the database
                 const wordData = snapshot.val();
-                word_eng = snapshot.child("eng").val();
-                word_jpn = snapshot.child("jpn").val();
-                word_kanji = snapshot.child("kanji").val();
+
+                let word_eng = snapshot.child("eng").val();
+                let word_jpn = snapshot.child("jpn").val();
+                let word_kanji = snapshot.child("kanji").val();
 
                 console.log("WORD ENG: " + word_eng);
 
@@ -335,13 +431,8 @@ function GetWordForDate(date, user)
             }
             else
             {
-                console.log("No data available, creating new word");
-                word_eng = GetCurrentInputText_English();
-                word_jpn = GetCurrentInputText_Japanese();
-                word_kanji = GetCurrentInputText_JapaneseKanji();
-
-                let word = new ClassDefs.WordEntry(word_eng, word_jpn, word_kanji);
-                resolve(word);
+                console.log("No data available for set date");
+                resolve(undefined);
             }
         }).catch((error) => {
             console.error(error);
@@ -393,6 +484,12 @@ function RefreshPage()
         let formattedDateString = monthString + " " + dayString + ", " + yearString;
         selectedDateElement.innerHTML = formattedDateString;
      
+        console.log("Nulling word");
+
+        DisplayWord(null);
+
+        const wordOfTheDayDiv = document.getElementById('wordOfDay');
+
         if (g_selectedUserEntry)
         {
             //Get the word for the selected date for the current user
@@ -404,6 +501,16 @@ function RefreshPage()
                 //Display the word
                 DisplayWord(wordForDate);
             });
+
+            wordOfTheDayDiv.style.visibility = "visible";
+            wordOfTheDayDiv.style.display = "block";
+        }
+        else
+        {
+            console.log("No user selected");
+            
+            wordOfTheDayDiv.style.visibility = "hidden";
+            wordOfTheDayDiv.style.display = "none";
         }
     }
 }

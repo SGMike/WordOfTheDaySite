@@ -3,24 +3,25 @@
 <html>
     <head>
         <title>Word of the Day</title>
-        <link rel="stylesheet" href="./mainStyles.css">
-        <script type="module" src="./main.js"></script>
+        <link rel="stylesheet" href="./src/mainStyles.css">
+        <script type="module" src="./src/main.js"></script>
     </head>
 
     <body>
         <!-- Place arrow button to navigate to previous day to left of word div-->
-        <div id="leftArrow">
-            <button id="leftArrowBtn" type="button">←</button>
-        </div>
-        <div id="rightArrow">
-            <button id="rightArrowBtn" type="button">→</button>
-        </div>
+        
 
-        <div id="word">
+        <div id="wordOfDay">
+            <div id="leftArrow">
+                <button id="leftArrowBtn" type="button">←</button>
+            </div>
+            <div id="rightArrow">
+                <button id="rightArrowBtn" type="button">→</button>
+            </div>
+
             <h1>Word of the Day</h1>
             <div id="selectedDate"></div>
                 
-            </div>
             <div id="wordOfDay_jpn">
                 <input id="wordOfDay_jpn_input" type="text" name="word">
             </div>
@@ -35,11 +36,11 @@
 
             <br><br><br><br>
             
-            <div id="tangorin">
-                <a id="tangorinLink" href="">Tangorin</a>
-            </div>
             <div id="jisho">
-                <a id="jishoLink" href="">Jisho</a>
+                <a id="jishoLink" target="_blank" href="">Jisho</a>
+            </div>
+            <div id="tangorin">
+                <a id="tangorinLink" target="_blank" href="">Tangorin</a>
             </div>
 
 
@@ -53,25 +54,11 @@
             <br>
             <br>
 
-            
-            <div id="wordList"></div>
-
-            
-                <p>Definition</p>
-                <p>Example</p>
-            </div>
         </div>
-
         
-        <div id="currentUser"></div>
-
-        <br>
-        <br>
-        <br>
-        <br>
-
         <div id="UsersUI">
             <h2>Users</h2>
+            <div id="currentUser"></div>
             <div id="userButtons"></div>
             <form>
                 <label for="userNameInput">New User</label>
